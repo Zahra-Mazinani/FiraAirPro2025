@@ -83,18 +83,65 @@ def keyboard_control(key):
     # elif key == ord('x'):
     #     stop_flag.set()
 
+# def preprocess(frame):
+#     frame = cv2.resize(frame,(0,0),fy=0.5,fx=0.5)
+#     return frame
+
+reference_frame = None  # برای ذخیره اولین فریم مرجع
+reference_brightness = None
+reference_contrast = None
+
+
+def calculate_brightness_contrast(img):
+    """محاسبه روشنایی (میانگین) و کنتراست (انحراف معیار)"""  
+    brightness = np.mean(img)
+    contrast = np.std(img)
+    return brightness, contrast
+
+
+def adjust_image(img, brightness_factor, contrast_factor):
+    """تنظیم روشنایی و کنتراست تصویر با استفاده از فاکتورهای محاسبه شده"""
+    img = cv2.convertScaleAbs(img, alpha=contrast_factor, beta=brightness_factor)
+    return img
+
+
+def filter_color_ycrcb(ycrcb_img, lower_bound_ycrcb, upper_bound_ycrcb):
+    """فیلتر رنگ در فضای YCrCb و خروجی به صورت ماسک باینری"""
+    mask = cv2.inRange(ycrcb_img, lower_bound_ycrcb, upper_bound_ycrcb)
+    return mask
+
+
 def preprocess(frame):
-    frame = cv2.resize(frame,(0,0),fy=0.5,fx=0.5)
-    h,w,_ = frame.shape
-    print(h,w)
-    frame= frame[50:h-50,50:w-50]
-    return frame
+    global reference_frame, reference_brightness, reference_contrast
+
+    frame = cv2.resize(frame, (0, 0), fy=0.5, fx=0.5)
+
+    ycrcb_img = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
+    ycrcb_img = cv2.GaussianBlur(ycrcb_img, (7, 7), 1)
+
+    if reference_frame is None:
+        # ذخیره اولین فریم به‌عنوان مرجع
+        reference_frame = ycrcb_img
+        reference_brightness, reference_contrast = calculate_brightness_contrast(reference_frame)
+
+    current_brightness, current_contrast = calculate_brightness_contrast(ycrcb_img)
+    brightness_factor = reference_brightness - current_brightness
+    contrast_factor = reference_contrast / current_contrast if current_contrast > 0 else 1.0
+
+    # تنظیم تصویر به حالت مشابه فریم مرجع
+    adjusted_img = adjust_image(frame, brightness_factor, contrast_factor)
+    adjusted_ycrcb = cv2.cvtColor(adjusted_img, cv2.COLOR_BGR2YCrCb)
+
+    # فیلتر کردن رنگ و خروجی ماسک باینری
+    mask = filter_color_ycrcb(adjusted_ycrcb, gate_lower_val, gate_upper_val)
+
+    return frame,mask
+
 
 # @jit(nopython=True,cache=True)
-def gate_center(frame):
-    # returns error between gate and the center of frame
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(frame, gate_lower_val, gate_upper_val)
+# returns error between gate and the center of frame
+def gate_center(frame , mask):
+
     mask_ = Image.fromarray(mask)
     bbax = mask_.getbbox()
     
@@ -104,12 +151,35 @@ def gate_center(frame):
         cv2.circle(frame, ((x1+x2)//2,(y1+y2)//2), 10, (0,0,255), -1)
         h,w,_ = frame.shape
 
-        error=( (w//2)-((x1+x2)//2),(h//2)-((y1+y2)//2))
+        error = ((w//2)-((x1+x2)//2),(h//2)-((y1+y2)//2))
         cv2.line(frame, ((x1+x2)//2,(y1+y2)//2), ((w//2),(h//2)), (255,0,0), 2)
         # print(error)
     else:
         error = (0,0)
-    return error , mask, frame
+    return error , frame
+
+def gate_center_overlab(frame,mask):
+    height , width, _ =frame.shape
+    label, lbl_img, stats, centroids = cv2.connectedComponentsWithStats(mask)
+    if len(stats) > 1:  # چک کردن اینکه آیا حداقل یک جسم پیدا شده
+        # پیدا کردن بزرگترین مساحت به جز پس‌زمینه (index 0)
+        largest_index = np.argmax(stats[1:, cv2.CC_STAT_AREA]) + 1
+
+        # گرفتن اطلاعات بزرگترین جسم
+        x, y, w, h, area = stats[largest_index]
+        # cx, cy = centroids[largest_index]
+        cx = x+w//2
+        cy = y+h//2
+        # رسم مستطیل و مرکز
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
+        cv2.circle(frame, (int(cx), int(cy)), 5, (0, 0, 255), -1)
+        error = ((width//2)-(cx),(height//2)-(cy))
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",len(stats))
+        print(f"center: ({int(cx)}, {int(cy)})")
+    else:
+        error = (0,0)
+        print("no gate")
+    return error, frame
 
 def line_lenght():
     return
