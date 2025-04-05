@@ -283,3 +283,33 @@ def gate_center_overlab(frame,mask):
         print("no gate")
     return error, frame
 
+def thresholding(img):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    mask = cv2.inRange(hsv, line_lower_val, line_upper_val)
+    return mask
+
+def getContours(imgThres, img):
+    cx = 0
+    contours, hieracrhy = cv2.findContours(imgThres, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    if len(contours) != 0:
+        biggest = max(contours, key=cv2.contourArea)
+        x, y, w, h = cv2.boundingRect(biggest)
+        cx = x + w // 2
+        cy = y + h // 2
+        cv2.drawContours(img, biggest, -1, (255, 0, 255), 7)
+        cv2.circle(img, (cx, cy), 10, (0, 255, 0), cv2.FILLED)
+    return cx
+
+def getSensorOutput(imgThres, sensors):
+    imgs = np.hsplit(imgThres, sensors)
+    totalPixels = (img.shape[1] // sensors) * img.shape[0]
+    senOut = []
+    for x, im in enumerate(imgs):
+        pixelCount = cv2.countNonZero(im)
+        if pixelCount > threshold * totalPixels:
+            senOut.append(1)
+        else:
+            senOut.append(0)
+        # cv2.imshow(str(x), im)
+    # print(senOut)
+    return senOut
