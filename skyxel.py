@@ -55,7 +55,7 @@ def filter_color(img, lower_bound, upper_bound):
     Filters colors in the YCrCb color space.
 
     Args:
-        ycrcb_img (numpy.ndarray): The input image in YCrCb color space.
+        img (numpy.ndarray): The input image in YCrCb/LAB/HSV color space.
         lower_bound_ycrcb (tuple): The lower bound for color filtering.
         upper_bound_ycrcb (tuple): The upper bound for color filtering.
 
@@ -81,26 +81,27 @@ def preprocess(frame):
 
     frame = cv2.resize(frame, (0, 0), fy=0.5, fx=0.5)
 
-    ycrcb_img = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
-    ycrcb_img = cv2.GaussianBlur(ycrcb_img, (7, 7), 1)
+    img = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
+    img = cv2.GaussianBlur(img, (7, 7), 1)
 
-    if reference_frame is None:
-        # ذخیره اولین فریم به‌عنوان مرجع
-        reference_frame = ycrcb_img
-        reference_brightness, reference_contrast = calculate_brightness_contrast(reference_frame)
+#     if reference_frame is None:
+#         # ذخیره اولین فریم به‌عنوان مرجع
+#         reference_frame = img
+#         reference_brightness, reference_contrast = calculate_brightness_contrast(reference_frame)
 
-    current_brightness, current_contrast = calculate_brightness_contrast(ycrcb_img)
-    brightness_factor = reference_brightness - current_brightness
-    contrast_factor = reference_contrast / current_contrast if current_contrast > 0 else 1.0
+#     current_brightness, current_contrast = calculate_brightness_contrast(img)
+#     brightness_factor = reference_brightness - current_brightness
+#     contrast_factor = reference_contrast / current_contrast if current_contrast > 0 else 1.0
 
-    # تنظیم تصویر به حالت مشابه فریم مرجع
-    adjusted_img = adjust_image(frame, brightness_factor, contrast_factor)
-    adjusted_ycrcb = cv2.cvtColor(adjusted_img, cv2.COLOR_BGR2YCrCb)
+#     # تنظیم تصویر به حالت مشابه فریم مرجع
+#     adjusted_img = adjust_image(frame, brightness_factor, contrast_factor)
+#     adjusted_ycrcb = cv2.cvtColor(adjusted_img, cv2.COLOR_BGR2YCrCb)
 
     # فیلتر کردن رنگ و خروجی ماسک باینری
     gate_lower_val = np.array(gate_lower)
     gate_upper_val = np.array(gate_upper)
-    mask = filter_color(adjusted_ycrcb, gate_lower_val, gate_upper_val)
+    # mask = filter_color(adjusted_ycrcb, gate_lower_val, gate_upper_val)
+    mask = filter_color(img, gate_lower_val, gate_upper_val)
 
     return frame,mask
 

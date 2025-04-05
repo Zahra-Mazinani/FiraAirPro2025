@@ -3,8 +3,13 @@ from threading import Thread
 import cv2
 import time
 import numpy as np
+import sys
+sys.path.append("C:\\Users\\mazin\\OneDrive\\Documents\\GitHub\\FiraAirPro2025") 
 
-mytello = Tello()
+import fake_tello
+
+mytello = fake_tello.FakeTello()
+# mytello = Tello()
 mytello.connect()
 
 mytello.streamon()
@@ -22,11 +27,9 @@ cv2.createTrackbar('UH',"Tracking",255,255,nothing)
 cv2.createTrackbar('US',"Tracking",255,255,nothing)
 cv2.createTrackbar('UV',"Tracking",255,255,nothing)
 i=0
-cap = cv2.VideoCapture(0)
 while True:
     frame = mytello.get_frame_read().frame
-    # _,frame = cap.read()
-    # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
     
     # clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     # frame[:, :, 2] = clahe.apply(frame[:, :, 2])
@@ -43,7 +46,7 @@ while True:
     
     mask = cv2.inRange(frame, l_bound, u_bound)
     res =cv2.bitwise_and(frame,frame,mask=mask)
-    # cv2.imshow("mask",mask)
+    cv2.imshow("mask",mask)
     cv2.imshow("frame",res)
     i+=1
     # print("ofoghi_image_tello{}.png".format(i),frame)

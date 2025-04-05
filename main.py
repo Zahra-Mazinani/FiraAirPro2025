@@ -51,7 +51,7 @@ def stream_camera():
                 break
 
 def control(error):
-    # os.system('cls')
+    os.system('cls')
     error_x = error[0]*-0.077
     error_y = error[1]*0.077
     error_x = int(np.clip(error_x,-100,100))

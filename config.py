@@ -1,6 +1,6 @@
 # gate variables
-gate_lower = [0,0,180]
-gate_upper = [109,167,255]
+gate_lower = [82,161,109]
+gate_upper = [231,193,255]
 threshold_x = 8 #cm
 threshold_y = 8 #cm
 
