@@ -1,9 +1,11 @@
 from config import *
 from skyxel import *
 import threading
+import fake_tello
 
 # Initialize the Tello drone
-drone = Tello()
+drone = fake_tello.FakeTello()
+# drone = Tello()
 drone.connect()
 drone.takeoff()
 
@@ -28,8 +30,8 @@ def stream_camera():
         if n%5==1:
             frame = drone.get_frame_read().frame
             # found_H, (x, y, w, h) = H_detection(frame)
-            # frame = preprocess(frame)
-            error, mask, frame = gate_center(frame)
+            frame,mask = preprocess(frame)
+            error, frame = gate_center(frame,mask)
             # print(x, y, w, h)
 
             cv2.imshow("mask", mask)

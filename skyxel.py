@@ -268,9 +268,11 @@ def gate_center_overlab(frame,mask):
 def thresholding(img):
     """
     Thresholding the image to create a binary mask.
+
     Args:
         img (numpy.ndarray): The input image.
-    returns:
+    
+    Returns:
         mask (numpy.ndarray): The binary mask after thresholding.
     """
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
@@ -280,10 +282,12 @@ def thresholding(img):
 def getContours(imgThres, img):
     """
     Finds the contours in the thresholded image and draws them on the original image.
+    
     Args:
         imgThres (numpy.ndarray): The thresholded image.
         img (numpy.ndarray): The original image.   
-    returns:
+    
+    Returns:
         cx (int): The x-coordinate of the center of the largest contour.
     """
     cx = 0
@@ -300,11 +304,13 @@ def getContours(imgThres, img):
 def getSensorOutput(frame,imgThres, sensors):
     """
     Splits the thresholded image into sections and counts the number of white pixels in each section.
+    
     Args:
         frame (numpy.ndarray): The input image frame.
         imgThres (numpy.ndarray): The thresholded image.
         sensors (int): The number of sensors.
-    returns:
+    
+    Returns:
         senOut (list): A list containing the sensor outputs (1 or 0).
     """
     imgs = np.hsplit(imgThres, sensors)

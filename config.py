@@ -14,7 +14,7 @@ threshold_x = 8 #cm
 threshold_y = 8 #cm
 
 # H_detection variables
-H_template = cv2.imread('H.png',0)
+H_template = cv2.imread('D:\\fira_air_2025\\codes\\H.png',0)
 H_template = cv2.resize(H_template, (50, 50))  # Resize ROI to match template size
 
 
