@@ -1,48 +1,28 @@
 from config import *
 
-def pid_controller_x(error, kp, kd,ki ):
-    """
-    PID controller for the X-axis.
+class PID_Controller:
+    def __init__(self, kp, ki, kd):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.prev_error = 0
+        self.integral = 0
+    def controller(self,error):
+        """
+        PID controller for the Y-axis.
 
-    Args:
-        error (float): The error value for the X-axis.
-        kp (float): Proportional gain.
-        kd (float): Derivative gain.
-        ki (float): Integral gain.
+        Args:
+            error (float): The error value for the Y-axis.
 
-    Returns:
-        float: The control output for the X-axis.
-    """
-  
-    global previos_error_x , integral_x
-    p = error* kp
-    d = (error-previos_error_x)*kd
-    integral_x += error 
-    previos_error_x = error
-    return p + d + integral_x*ki
-
-
-def pid_controller_y(error, kp, kd,ki):
-    """
-    PID controller for the Y-axis.
-
-    Args:
-        error (float): The error value for the Y-axis.
-        kp (float): Proportional gain.
-        kd (float): Derivative gain.
-        ki (float): Integral gain.
-
-    Returns:
-        float: The control output for the Y-axis.
-    """
+        Returns:
+            float: The control output for the Y-axis.
+        """
+        p = error * self.kp
+        d = (error - self.prev_error) * self.kd
+        self.integral += error
+        self.prev_error = error
+        return p + d + self.integral * self.ki
     
-    global previos_error_y , integral_y
-    p = error* kp
-    d = (error-previos_error_y)*kd
-    integral_y += error 
-    previos_error_y = error
-    return p + d + integral_y*ki
-
 # @jit(nopython=True,cache=True)
 def H_detection(frame):
     """
@@ -81,11 +61,12 @@ def H_detection(frame):
         x,y,w,h = 0,0,0,0
     return found_H , (x,y,w,h)
 
-def keyboard_control(key):
+def keyboard_control(drone,key):
     """
     Controls the drone using keyboard input.
 
     Args:
+        drone (object): The drone object to control.
         key (int): The ASCII value of the pressed key.
 
     Returns:
@@ -168,7 +149,7 @@ def adjust_image(img, brightness_factor, contrast_factor):
     return img
 
 
-def filter_color_ycrcb(ycrcb_img, lower_bound_ycrcb, upper_bound_ycrcb):
+def filter_color(img, lower_bound, upper_bound):
     """
     Filters colors in the YCrCb color space.
 
@@ -181,7 +162,7 @@ def filter_color_ycrcb(ycrcb_img, lower_bound_ycrcb, upper_bound_ycrcb):
         numpy.ndarray: The binary mask after color filtering.
     """
     """فیلتر رنگ در فضای YCrCb و خروجی به صورت ماسک باینری"""
-    mask = cv2.inRange(ycrcb_img, lower_bound_ycrcb, upper_bound_ycrcb)
+    mask = cv2.inRange(img, lower_bound, upper_bound)
     return mask
 
 
@@ -216,7 +197,7 @@ def preprocess(frame):
     adjusted_ycrcb = cv2.cvtColor(adjusted_img, cv2.COLOR_BGR2YCrCb)
 
     # فیلتر کردن رنگ و خروجی ماسک باینری
-    mask = filter_color_ycrcb(adjusted_ycrcb, gate_lower_val, gate_upper_val)
+    mask = filter_color(adjusted_ycrcb, gate_lower_val, gate_upper_val)
 
     return frame,mask
 
@@ -276,19 +257,35 @@ def gate_center_overlab(frame,mask):
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
         cv2.circle(frame, (int(cx), int(cy)), 5, (0, 0, 255), -1)
         error = ((width//2)-(cx),(height//2)-(cy))
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",len(stats))
         print(f"center: ({int(cx)}, {int(cy)})")
     else:
         error = (0,0)
         print("no gate")
     return error, frame
 
+
+# line following functions
 def thresholding(img):
+    """
+    Thresholding the image to create a binary mask.
+    Args:
+        img (numpy.ndarray): The input image.
+    returns:
+        mask (numpy.ndarray): The binary mask after thresholding.
+    """
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     mask = cv2.inRange(hsv, line_lower_val, line_upper_val)
     return mask
 
 def getContours(imgThres, img):
+    """
+    Finds the contours in the thresholded image and draws them on the original image.
+    Args:
+        imgThres (numpy.ndarray): The thresholded image.
+        img (numpy.ndarray): The original image.   
+    returns:
+        cx (int): The x-coordinate of the center of the largest contour.
+    """
     cx = 0
     contours, hieracrhy = cv2.findContours(imgThres, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     if len(contours) != 0:
@@ -300,9 +297,18 @@ def getContours(imgThres, img):
         cv2.circle(img, (cx, cy), 10, (0, 255, 0), cv2.FILLED)
     return cx
 
-def getSensorOutput(imgThres, sensors):
+def getSensorOutput(frame,imgThres, sensors):
+    """
+    Splits the thresholded image into sections and counts the number of white pixels in each section.
+    Args:
+        frame (numpy.ndarray): The input image frame.
+        imgThres (numpy.ndarray): The thresholded image.
+        sensors (int): The number of sensors.
+    returns:
+        senOut (list): A list containing the sensor outputs (1 or 0).
+    """
     imgs = np.hsplit(imgThres, sensors)
-    totalPixels = (img.shape[1] // sensors) * img.shape[0]
+    totalPixels = (frame.shape[1] // sensors) * frame.shape[0]
     senOut = []
     for x, im in enumerate(imgs):
         pixelCount = cv2.countNonZero(im)

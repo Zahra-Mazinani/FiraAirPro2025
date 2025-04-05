@@ -7,14 +7,6 @@ import time
 import numpy as np
 import os 
 
-# pid controller variables
-global error
-previos_error_x = 0
-integral_x=0
-previos_error_y = 0
-integral_y=0
-error = None
-
 # gate variables
 gate_lower_val = np.array([0,0,180])
 gate_upper_val = np.array([109,167,255])
