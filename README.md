@@ -25,10 +25,10 @@ List any prerequisites such as software and dependencies.
 
    pip install -r requirements.txt
 
-### Usage
+## Usage
 Provide examples of how to use the project. Include code snippets and screenshots if applicable.
 
-### Contributing
+## Contributing
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
 
 - Fork the Project
@@ -37,10 +37,10 @@ Contributions are what make the open-source community such an amazing place to l
 - Push to the Branch (git push origin feature/AmazingFeature)
 - Open a Pull Request
 
-### License
+## License
 Distributed under the MIT License. See LICENSE.txt for more information.
 
-### Contact
+## Contact
 Your Name - @your_twitter - email@example.com
 
 Project Link: https://github.com/Zahra-Mazinani/FiraAirPro2025
