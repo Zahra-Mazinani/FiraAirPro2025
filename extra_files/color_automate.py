@@ -4,11 +4,11 @@ import cv2
 import time
 import numpy as np
 
-mytello = Tello()
-mytello.connect()
+# mytello = Tello()
+# mytello.connect()
 
-mytello.streamon()
-time.sleep(2)
+# mytello.streamon()
+# time.sleep(2)
 
 
 def calculate_brightness_contrast(pixels):
@@ -30,16 +30,19 @@ def filter_color_hsv(hsv_img, lower_bound_hsv, upper_bound_hsv):
     """فقط پیکسل هایی را نشان می دهد که در محدوده رنگ HSV مشخص شده قرار دارند."""
     # hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv_img, lower_bound_hsv, upper_bound_hsv)
-    filtered_img = cv2.bitwise_and(img, img, mask=mask)
+    filtered_img = cv2.bitwise_and(hsv_img, hsv_img, mask=mask)
     return filtered_img
 
 if __name__ == "__main__":
+    cap = cv2.VideoCapture(0)
     while True:
-        frame = mytello.get_frame_read().frame
+        _,frame = cap.read()
+
+        # frame = mytello.get_frame_read().frame
         img = cv2.resize(frame,(0,0),fy=0.5,fx=0.5)
 
         # --- مرحله 2: تبدیل تصویر به فضای رنگی HSV ---
-        hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
 
         # --- مرحله 3: اعمال CLAHE بر روی کانال Value (V) ---
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
@@ -54,8 +57,8 @@ if __name__ == "__main__":
         # شما باید بر اساس مقادیری که با کلیک روی تصویر بدست آوردید، این محدوده را تنظیم کنید.
         # lower_hsv = np.array([72,0,222])   # **مقادیر H، S، V پایین را تنظیم کنید**
         # upper_hsv = np.array([211,147,255])  # **مقادیر H، S، V بالا را تنظیم کنید**
-        lower_hsv = np.array([108,62,177])
-        upper_hsv = np.array([156,255,255])
+        lower_hsv = np.array([23,172,68])
+        upper_hsv = np.array([255,255,255])
         print(f"محدوده رنگ HSV برای فیلتر: پایین={lower_hsv}, بالا={upper_hsv}")
 
         # --- مرحله 6: فیلتر کردن رنگ در فضای HSV (بعد از اعمال CLAHE) ---

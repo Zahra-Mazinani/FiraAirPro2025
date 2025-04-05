@@ -1,6 +1,19 @@
 from config import *
 
 def pid_controller_x(error, kp, kd,ki ):
+    """
+    PID controller for the X-axis.
+
+    Args:
+        error (float): The error value for the X-axis.
+        kp (float): Proportional gain.
+        kd (float): Derivative gain.
+        ki (float): Integral gain.
+
+    Returns:
+        float: The control output for the X-axis.
+    """
+  
     global previos_error_x , integral_x
     p = error* kp
     d = (error-previos_error_x)*kd
@@ -10,6 +23,19 @@ def pid_controller_x(error, kp, kd,ki ):
 
 
 def pid_controller_y(error, kp, kd,ki):
+    """
+    PID controller for the Y-axis.
+
+    Args:
+        error (float): The error value for the Y-axis.
+        kp (float): Proportional gain.
+        kd (float): Derivative gain.
+        ki (float): Integral gain.
+
+    Returns:
+        float: The control output for the Y-axis.
+    """
+    
     global previos_error_y , integral_y
     p = error* kp
     d = (error-previos_error_y)*kd
@@ -19,6 +45,15 @@ def pid_controller_y(error, kp, kd,ki):
 
 # @jit(nopython=True,cache=True)
 def H_detection(frame):
+    """
+    Detects the letter 'H' in the given frame.
+
+    Args:
+        frame (numpy.ndarray): The input image frame.
+
+    Returns:
+        tuple: A boolean indicating if 'H' was found and the bounding box (x, y, w, h).
+    """
     # Convert frame to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -47,7 +82,15 @@ def H_detection(frame):
     return found_H , (x,y,w,h)
 
 def keyboard_control(key):
-    
+    """
+    Controls the drone using keyboard input.
+
+    Args:
+        key (int): The ASCII value of the pressed key.
+
+    Returns:
+        None
+    """
     if key == ord('w'):
         print("forward")
         drone.move_forward(30)
@@ -93,6 +136,15 @@ reference_contrast = None
 
 
 def calculate_brightness_contrast(img):
+    """
+    Calculates the brightness and contrast of an image.
+
+    Args:
+        img (numpy.ndarray): The input image.
+
+    Returns:
+        tuple: Brightness (mean) and contrast (standard deviation).
+    """
     """محاسبه روشنایی (میانگین) و کنتراست (انحراف معیار)"""  
     brightness = np.mean(img)
     contrast = np.std(img)
@@ -100,18 +152,49 @@ def calculate_brightness_contrast(img):
 
 
 def adjust_image(img, brightness_factor, contrast_factor):
+    """
+    Adjusts the brightness and contrast of an image.
+
+    Args:
+        img (numpy.ndarray): The input image.
+        brightness_factor (float): The brightness adjustment factor.
+        contrast_factor (float): The contrast adjustment factor.
+
+    Returns:
+        numpy.ndarray: The adjusted image.
+    """
     """تنظیم روشنایی و کنتراست تصویر با استفاده از فاکتورهای محاسبه شده"""
     img = cv2.convertScaleAbs(img, alpha=contrast_factor, beta=brightness_factor)
     return img
 
 
 def filter_color_ycrcb(ycrcb_img, lower_bound_ycrcb, upper_bound_ycrcb):
+    """
+    Filters colors in the YCrCb color space.
+
+    Args:
+        ycrcb_img (numpy.ndarray): The input image in YCrCb color space.
+        lower_bound_ycrcb (tuple): The lower bound for color filtering.
+        upper_bound_ycrcb (tuple): The upper bound for color filtering.
+
+    Returns:
+        numpy.ndarray: The binary mask after color filtering.
+    """
     """فیلتر رنگ در فضای YCrCb و خروجی به صورت ماسک باینری"""
     mask = cv2.inRange(ycrcb_img, lower_bound_ycrcb, upper_bound_ycrcb)
     return mask
 
 
 def preprocess(frame):
+    """
+    Preprocesses the input frame by resizing, adjusting brightness/contrast, and filtering colors.
+
+    Args:
+        frame (numpy.ndarray): The input image frame.
+
+    Returns:
+        tuple: The preprocessed frame and the binary mask.
+    """
     global reference_frame, reference_brightness, reference_contrast
 
     frame = cv2.resize(frame, (0, 0), fy=0.5, fx=0.5)
@@ -141,7 +224,16 @@ def preprocess(frame):
 # @jit(nopython=True,cache=True)
 # returns error between gate and the center of frame
 def gate_center(frame , mask):
+    """
+    Finds the center of the gate in the frame and calculates the error relative to the frame center.
 
+    Args:
+        frame (numpy.ndarray): The input image frame.
+        mask (numpy.ndarray): The binary mask of the gate.
+
+    Returns:
+        tuple: The error (x, y) and the updated frame with visualizations.
+    """
     mask_ = Image.fromarray(mask)
     bbax = mask_.getbbox()
     
@@ -159,6 +251,16 @@ def gate_center(frame , mask):
     return error , frame
 
 def gate_center_overlab(frame,mask):
+    """
+    Finds the center of the gate using connected components and calculates the error.
+
+    Args:
+        frame (numpy.ndarray): The input image frame.
+        mask (numpy.ndarray): The binary mask of the gate.
+
+    Returns:
+        tuple: The error (x, y) and the updated frame with visualizations.
+    """
     height , width, _ =frame.shape
     label, lbl_img, stats, centroids = cv2.connectedComponentsWithStats(mask)
     if len(stats) > 1:  # چک کردن اینکه آیا حداقل یک جسم پیدا شده
@@ -181,11 +283,3 @@ def gate_center_overlab(frame,mask):
         print("no gate")
     return error, frame
 
-def line_lenght():
-    return
-def line_following():
-    return 
-def line_detection():
-    return
-def line_following():
-    return

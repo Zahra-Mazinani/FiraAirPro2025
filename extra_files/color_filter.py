@@ -22,9 +22,11 @@ cv2.createTrackbar('UH',"Tracking",255,255,nothing)
 cv2.createTrackbar('US',"Tracking",255,255,nothing)
 cv2.createTrackbar('UV',"Tracking",255,255,nothing)
 i=0
+cap = cv2.VideoCapture(0)
 while True:
     frame = mytello.get_frame_read().frame
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
+    # _,frame = cap.read()
+    # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
     
     # clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     # frame[:, :, 2] = clahe.apply(frame[:, :, 2])
@@ -45,9 +47,10 @@ while True:
     cv2.imshow("frame",res)
     i+=1
     # print("ofoghi_image_tello{}.png".format(i),frame)
-    cv2.imwrite("ofo    ghi_image_tello{}.png".format(i),frame)
+    # cv2.imwrite("ofoghi_image_tello{}.png".format(i),frame)
     key = cv2.waitKey(20)
-    if key == ord("q"):
+    if key & 0xFF == 27:  # ESC key to exit
         break
 cv2.destroyAllWindows()
-mytello.end()
+# cap.release()
+mytello.end() 
