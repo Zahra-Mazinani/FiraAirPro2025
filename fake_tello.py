@@ -43,7 +43,7 @@ class FakeTello:
         up_down_velocity: -100~100 (down/up)
         yaw_velocity: -100~100 (yaw)
         '''
-        print(f"[FakeTello] Sending RC control - LR: {left_right}, FB: {forward_backward}, UD: {up_down}, YAW: {yaw}")
+        print(f"[FakeTello] Sending RC control - LR: {left_right}, FB: {forward_backward}, UD: {up_down}, YAW: {yaw})")
 
     def get_battery(self):
         print("[FakeTello] Getting battery level (simulated)")

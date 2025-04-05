@@ -1,111 +1,12 @@
+# from numba import jit
 from config import *
-
-class PID_Controller:
-    def __init__(self, kp, ki, kd):
-        self.kp = kp
-        self.ki = ki
-        self.kd = kd
-        self.prev_error = 0
-        self.integral = 0
-    def controller(self,error):
-        """
-        PID controller for the Y-axis.
-
-        Args:
-            error (float): The error value for the Y-axis.
-
-        Returns:
-            float: The control output for the Y-axis.
-        """
-        p = error * self.kp
-        d = (error - self.prev_error) * self.kd
-        self.integral += error
-        self.prev_error = error
-        return p + d + self.integral * self.ki
-    
-# @jit(nopython=True,cache=True)
-def H_detection(frame):
-    """
-    Detects the letter 'H' in the given frame.
-
-    Args:
-        frame (numpy.ndarray): The input image frame.
-
-    Returns:
-        tuple: A boolean indicating if 'H' was found and the bounding box (x, y, w, h).
-    """
-    # Convert frame to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    # Apply thresholding to get a binary image
-    _, binary = cv2.threshold(gray, 100, 200, cv2.THRESH_BINARY_INV)
-
-    # Find contours in the binary image
-    contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-    found_H = False
-    for contour in contours:
-        x, y, w, h = cv2.boundingRect(contour)
-        if w > 10 and h > 10:  # Filter small contours
-            roi = gray[y:y+h, x:x+w]
-            roi = cv2.resize(roi, (50, 50))  # Resize ROI to match template size
-            roi= np.bitwise_not(roi)
-            res = cv2.matchTemplate(roi, H_template, cv2.TM_CCOEFF_NORMED)
-            if res >= 0.46:  # Adjust the threshold as needed
-                found_H = True
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                cv2.putText(frame, "Found 'H'!", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                break
-    if not found_H:
-        cv2.putText(frame, "'H' not found", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-        x,y,w,h = 0,0,0,0
-    return found_H , (x,y,w,h)
-
-def keyboard_control(drone,key):
-    """
-    Controls the drone using keyboard input.
-
-    Args:
-        drone (object): The drone object to control.
-        key (int): The ASCII value of the pressed key.
-
-    Returns:
-        None
-    """
-    if key == ord('w'):
-        print("forward")
-        drone.move_forward(30)
-    
-    elif key == ord('s'):
-        print("back")
-        drone.move_back(30)
-        
-    elif key == ord('a'):
-        print("left")
-        drone.move_left(30)
-        
-    elif key == ord('d'):
-        print("right")
-        drone.move_right(30)
-        
-    elif key == ord('e'):
-        print("up")
-        drone.move_up(30)
-
-    elif key == ord('q'):
-        print("down")
-        drone.move_down(30)
-        
-    elif key == ord('t'):
-        print("takeoff")
-        drone.takeoff()
-        
-    elif key == ord('l'):
-        drone.land()
-        print("land")
-        
-    # elif key == ord('x'):
-    #     stop_flag.set()
+import threading
+import cv2
+from djitellopy import Tello
+from PIL import Image
+import time
+import numpy as np
+import os 
 
 # def preprocess(frame):
 #     frame = cv2.resize(frame,(0,0),fy=0.5,fx=0.5)
@@ -197,6 +98,8 @@ def preprocess(frame):
     adjusted_ycrcb = cv2.cvtColor(adjusted_img, cv2.COLOR_BGR2YCrCb)
 
     # فیلتر کردن رنگ و خروجی ماسک باینری
+    gate_lower_val = np.array(gate_lower)
+    gate_upper_val = np.array(gate_upper)
     mask = filter_color(adjusted_ycrcb, gate_lower_val, gate_upper_val)
 
     return frame,mask
@@ -276,6 +179,8 @@ def thresholding(img):
         mask (numpy.ndarray): The binary mask after thresholding.
     """
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    line_lower_val = np.array(line_lower)
+    line_upper_val = np.array(line_upper)
     mask = cv2.inRange(hsv, line_lower_val, line_upper_val)
     return mask
 
@@ -325,3 +230,112 @@ def getSensorOutput(frame,imgThres, sensors):
         # cv2.imshow(str(x), im)
     # print(senOut)
     return senOut
+
+
+class PID_Controller:
+    """
+    A simple PID controller class.
+    
+    Arguments:
+        kp (float): Proportional gain.
+        ki (float): Integral gain.
+        kd (float): Derivative gain.    
+    Returns:
+        change (float): The control output.
+    """
+    def __init__(self, kp, ki, kd):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.prev_error = 0
+        self.integral = 0
+    def controller(self,error):
+        p = error * self.kp
+        d = (error - self.prev_error) * self.kd
+        self.integral += error
+        self.prev_error = error
+        return p + d + self.integral * self.ki
+    
+# @jit(nopython=True,cache=True)
+def H_detection(frame):
+    """
+    Detects the letter 'H' in the given frame.
+
+    Args:
+        frame (numpy.ndarray): The input image frame.
+
+    Returns:
+        tuple: A boolean indicating if 'H' was found and the bounding box (x, y, w, h).
+    """
+    # Convert frame to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # Apply thresholding to get a binary image
+    _, binary = cv2.threshold(gray, 100, 200, cv2.THRESH_BINARY_INV)
+
+    # Find contours in the binary image
+    contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    found_H = False
+    for contour in contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        if w > 10 and h > 10:  # Filter small contours
+            roi = gray[y:y+h, x:x+w]
+            roi = cv2.resize(roi, (50, 50))  # Resize ROI to match template size
+            roi= np.bitwise_not(roi)
+            res = cv2.matchTemplate(roi, H_template, cv2.TM_CCOEFF_NORMED)
+            if res >= 0.46:  # Adjust the threshold as needed
+                found_H = True
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                cv2.putText(frame, "Found 'H'!", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                break
+    if not found_H:
+        cv2.putText(frame, "'H' not found", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        x,y,w,h = 0,0,0,0
+    return found_H , (x,y,w,h)
+
+def keyboard_control(drone,key):
+    """
+    Controls the drone using keyboard input.
+
+    Args:
+        drone (object): The drone object to control.
+        key (int): The ASCII value of the pressed key.
+
+    Returns:
+        None
+    """
+    if key == ord('w'):
+        print("forward")
+        drone.move_forward(30)
+    
+    elif key == ord('s'):
+        print("back")
+        drone.move_back(30)
+        
+    elif key == ord('a'):
+        print("left")
+        drone.move_left(30)
+        
+    elif key == ord('d'):
+        print("right")
+        drone.move_right(30)
+        
+    elif key == ord('e'):
+        print("up")
+        drone.move_up(30)
+
+    elif key == ord('q'):
+        print("down")
+        drone.move_down(30)
+        
+    elif key == ord('t'):
+        print("takeoff")
+        drone.takeoff()
+        
+    elif key == ord('l'):
+        drone.land()
+        print("land")
+        
+    # elif key == ord('x'):
+    #     stop_flag.set()

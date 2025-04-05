@@ -8,11 +8,14 @@ drone = fake_tello.FakeTello()
 # drone = Tello()
 drone.connect()
 drone.takeoff()
-
 drone.move_up(30)
 
 # Shared flag to terminate threads
 stop_flag = threading.Event()
+
+# H detection files
+H_template = cv2.imread(H_template_Path,0)
+H_template = cv2.resize(H_template, (50, 50))  # Resize ROI to match template size
 
 # متغیر اشتراکی برای ذخیره آخرین مقدار ارور
 latest_error = None
