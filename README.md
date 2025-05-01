@@ -64,6 +64,8 @@ Contributions are what make the open-source community such an amazing place to l
 Distributed under the MIT License. See LICENSE.txt for more information.
 
 ## Contact
-Zahra babaei - @your_twitter - email@example.com  
-Site : Skyxel.ir
+Zahra Babaei - [LinkedIn](https://www.linkedin.com/in/zahra-babaei-21a5a5282/) - [Email](Z.babaiy290@gmail.com)
+
+Zahra Mazinani - [LinkedIn](https://www.linkedin.com/in/zahramazinani/) - [Email](mazinani.zh@gmail.com)
+
 Project Link: https://github.com/Zahra-Mazinani/FiraAirPro2025
