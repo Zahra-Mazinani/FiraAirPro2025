@@ -45,7 +45,7 @@ To get a local copy up and running follow these simple steps.
 
    To run the gate traversal code, you can use the following command:
    ```sh
-   python simple gate follower/main.py
+   python gate_follower/main.py
 
 3. To run the line follower code, you can use the following command:
    ```sh
