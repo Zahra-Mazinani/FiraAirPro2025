@@ -38,17 +38,19 @@ To get a local copy up and running follow these simple steps.
 ## Usage
 First, connect your computer to the Wi-Fi network of the Tello drone.
 Execute the following script to start the initial color filtering process:
- ```sh
+    ```sh
    python extra_files/color_filter.py
+
 
 After running the script, open the config file and fine-tune the HSV filter parameters based on your environment and lighting conditions.
 
 To run the gate traversal code, you can use the following command:
- ```sh
+    ```sh
    python simple gate follower/main.py
 
+
 To run the line follower code, you can use the following command:
- ```sh
+   ```sh
    python line_folower/main_wline.py
 
 
