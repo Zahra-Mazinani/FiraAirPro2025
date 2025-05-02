@@ -55,7 +55,16 @@ To get a local copy up and running follow these simple steps.
    
 ## Fake Tello
 If you don't have access to a Tello drone or can't run the code with the actual device, you can use the [FakeTello](./fake_tello.py) module instead of djitellopy to test and run the code without a drone.
-
+In that case, make sure to replace:
+   ```sh
+   tello.Tello()
+   ```
+with:
+   ```sh
+   import fake_tello
+   fake_tello.FakeTello()
+   ```
+   
 
 ## Contributing
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
