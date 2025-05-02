@@ -61,7 +61,7 @@ Contributions are what make the open-source community such an amazing place to l
 - Open a Pull Request
 
 ## License
-Distributed under the MIT License. See LICENSE.txt for more information.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENSE) file for details.
 
 ## Contact
 Zahra Babaei - [LinkedIn](https://www.linkedin.com/in/zahra-babaei-21a5a5282/) - [Email](Z.babaiy290@gmail.com)
