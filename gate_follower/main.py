@@ -3,6 +3,7 @@ from skyxel import *
 import threading
 
 # Initialize the Tello drone
+drone = Tello()
 drone.connect()
 print("Battery : ",drone.get_battery())
 

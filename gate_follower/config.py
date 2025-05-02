@@ -43,8 +43,6 @@ orange_upper_val = np.array([106,161,88])
 purple_lower_val = np.array([141,146,109])
 purple_upper_val = np.array([205,196,255])
 
-drone = Tello()
-
 H_template = cv2.imread('H.png',0)
 # H_template = cv2.resize(H_template, (50, 50))  # Resize ROI to match template size
 
