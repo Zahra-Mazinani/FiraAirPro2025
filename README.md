@@ -5,9 +5,11 @@ A project by the SkyXel Robotic Team aiming to develop advanced robotic solution
 - [About the Project](#about-the-project)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
+- [Fake Tello](#fake-tello)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
+
 
 ## About the Project
 The FiraAirPro2025 project is developed by the SkyXel Robotic Team. This project focuses on building innovative robotic solutions to compete in the FiraAirPro2025 competition.
@@ -50,6 +52,10 @@ To get a local copy up and running follow these simple steps.
 3. To run the line follower code, you can use the following command:
    ```sh
    python line_folower/main_wline.py
+   
+## Fake Tello
+If you don't have access to a Tello drone or can't run the code with the actual device, you can use the [FakeTello](./fake_tello.py) module instead of djitellopy to test and run the code without a drone.
+
 
 ## Contributing
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
