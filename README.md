@@ -4,8 +4,8 @@ A project by the SkyXel Robotic Team aiming to develop advanced robotic solution
 ## Table of Contents
 - [About the Project](#about-the-project)
 - [Getting Started](#getting-started)
-- [Usage](#usage)
 - [Fake Tello](#fake-tello)
+- [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -37,6 +37,19 @@ To get a local copy up and running follow these simple steps.
 
    pip install -r requirements.txt
 
+## Fake Tello
+If you don't have access to a Tello drone or can't run the code with the actual device, you can use the [FakeTello](./fake_tello.py) module instead of djitellopy to test and run the code without a drone.
+In that case, make sure to replace:
+   ```sh
+   tello.Tello()
+   ```
+with:
+   ```sh
+   import fake_tello
+   fake_tello.FakeTello()
+   ```
+
+
 ## Usage
 1. First, connect your computer to the Wi-Fi network of the Tello drone.
    Execute the following script to start the initial color filtering process:
@@ -53,19 +66,6 @@ To get a local copy up and running follow these simple steps.
    ```sh
    python line_folower/main_wline.py
    
-## Fake Tello
-If you don't have access to a Tello drone or can't run the code with the actual device, you can use the [FakeTello](./fake_tello.py) module instead of djitellopy to test and run the code without a drone.
-In that case, make sure to replace:
-   ```sh
-   tello.Tello()
-   ```
-with:
-   ```sh
-   import fake_tello
-   fake_tello.FakeTello()
-   ```
-   
-
 ## Contributing
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
 
