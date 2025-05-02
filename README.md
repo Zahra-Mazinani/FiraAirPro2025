@@ -63,9 +63,6 @@ with:
    ```sh
    python gate_follower/main.py
 
-3. To run the line follower code, you can use the following command:
-   ```sh
-   python line_folower/main_wline.py
 
 ## TODO
 
