@@ -1,6 +1,6 @@
 # FiraAirPro2025
 SkyXel Robotic Team
-A project by the SkyXel Robotic Team aiming to develop advanced robotic solutions for the FiraAirPro2025 competition.
+A project by the SkyXel Robotic Team aiming to develop advanced robotic solutions for the  Fira Autonomous Race(Air) competition.
 ## Table of Contents
 - [About the Project](#about-the-project)
 - [Getting Started](#getting-started)
