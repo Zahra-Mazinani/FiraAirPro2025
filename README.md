@@ -7,6 +7,7 @@ A project by the SkyXel Robotic Team aiming to develop advanced robotic solution
 - [Fake Tello](#fake-tello)
 - [Usage](#usage)
 - [Contributing](#contributing)
+- [TODO](#todo)
 - [License](#license)
 - [Contact](#contact)
 
@@ -65,7 +66,16 @@ with:
 3. To run the line follower code, you can use the following command:
    ```sh
    python line_folower/main_wline.py
-   
+
+## TODO
+
+- [ ] Add support for more advanced drone flight patterns
+- [ ] Improve FakeTello to simulate more realistic behaviors
+- [ ] Implement logging and better error handling
+- [ ] Add search patterns to find gates or line
+- [ ] Write better documentation and usage examples
+
+
 ## Contributing
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
 
