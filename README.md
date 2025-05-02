@@ -13,7 +13,7 @@ A project by the SkyXel Robotic Team aiming to develop advanced robotic solution
 
 
 ## About the Project
-The FiraAirPro2025 project is developed by the SkyXel Robotic Team. This project focuses on building innovative robotic solutions to compete in the FiraAirPro2025 competition.
+The FiraAirPro2025 project is developed by the SkyXel Robotic Team. This project focuses on building innovative robotic solutions to compete in the Fira Autonomous Race(Air) competition.
 
 
 The main task of the FiraAirPro2025 competition is divided into two key parts.
