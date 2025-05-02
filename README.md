@@ -69,8 +69,6 @@ with:
 
 ## TODO
 
-- [ ] Add support for more advanced drone flight patterns
-- [ ] Improve FakeTello to simulate more realistic behaviors
 - [ ] Implement logging and better error handling
 - [ ] Add search patterns to find gates or line
 - [ ] Write better documentation and usage examples
